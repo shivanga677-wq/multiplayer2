@@ -3,10 +3,11 @@ const fs = require('fs');
 const path = require('path');
 const WebSocket = require('ws');
 
+
 const server = http.createServer((req, res) => {
   let filePath = path.join(__dirname, req.url === '/' ? 'index.html' : req.url);
   const ext = path.extname(filePath);
-  const mimeTypes = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css' };
+  const mimeTypes = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.mp3': 'audio/mpeg', '.ogg': 'audio/ogg', '.wav': 'audio/wav' };
   const contentType = mimeTypes[ext] || 'text/plain';
   fs.readFile(filePath, (err, data) => {
     if (err) { res.writeHead(404); res.end('Not found'); return; }
@@ -33,7 +34,7 @@ function startTimer() {
   broadcastAll({ type: 'time', time: roundTime });
 
   timerInterval = setInterval(() => {
-    if (roundOver || Object.keys(players).length < 3) return; 
+    if (roundOver || Object.keys(players).length < 2) return; 
     
     roundTime--;
     broadcastAll({ type: 'time', time: roundTime });
@@ -44,13 +45,10 @@ function startTimer() {
       
       const pids = Object.keys(players);
       let winnerId = null;
-      if (pids.length === 3) {
+      if (pids.length >= 2) {
         const hps = pids.map(pid => ({ pid, hp: hp[pid] }));
         hps.sort((a, b) => b.hp - a.hp);
         if (hps[0].hp > hps[1].hp) winnerId = hps[0].pid;
-      } else if (pids.length === 2) {
-        if (hp[pids[0]] > hp[pids[1]]) winnerId = pids[0];
-        else if (hp[pids[1]] > hp[pids[0]]) winnerId = pids[1];
       }
 
       broadcastAll({ type: 'timeUp', winnerId });
@@ -118,8 +116,8 @@ wss.on('connection', (ws) => {
   broadcast({ type: 'playerJoined', id, name: names[id], spawn }, id);
   console.log(`Player ${id} connected (slot ${spawnIdx}). Total: ${Object.keys(players).length}`);
 
-  // Start timer if lobby is full
-  if (Object.keys(players).length === 3) {
+  // Start timer when both players are connected
+  if (Object.keys(players).length === 2) {
     startTimer();
   }
 
@@ -140,7 +138,7 @@ wss.on('connection', (ws) => {
         break;
 
       case 'shoot':
-        broadcast({ type: 'shoot', id, weapon: msg.weapon, origin: msg.origin, dir: msg.dir }, id);
+        broadcast({ type: 'shoot', id, weapon: msg.weapon, origin: msg.origin, dir: msg.dir, didHit: !!msg.didHit }, id);
         break;
 
       case 'hit': {
@@ -152,7 +150,7 @@ wss.on('connection', (ws) => {
         if (dmg === 0) break;
 
         hp[targetId] = Math.max(0, hp[targetId] - dmg);
-        broadcastAll({ type: 'damage', targetId, hp: hp[targetId], shooterId: id, damage: dmg, isHeadshot: !!msg.isHeadshot });
+        broadcastAll({ type: 'damage', targetId, hp: hp[targetId], shooterId: id, damage: dmg, isHeadshot: !!msg.isHeadshot, isDirectHit: !!msg.isDirectHit, weapon: msg.weapon || '' });
 
         if (hp[targetId] <= 0) {
           // Broadcast kill immediately
@@ -186,6 +184,13 @@ wss.on('connection', (ws) => {
       case 'emote':
         broadcast({ type: 'emote', id, audioData: msg.audioData || null }, id);
         break;
+
+      case 'chat': {
+        const text = String(msg.text || '').trim().slice(0, 120).replace(/[<>]/g, '');
+        if (!text) break;
+        broadcastAll({ type: 'chat', id, text });
+        break;
+      }
     }
   });
 
@@ -196,8 +201,8 @@ wss.on('connection', (ws) => {
     broadcast({ type: 'playerLeft', id });
     console.log(`Player ${id} disconnected. Total: ${Object.keys(players).length}`);
     
-    // Stop timer if someone leaves
-    if (Object.keys(players).length < 3) {
+    // Stop timer if a player leaves
+    if (Object.keys(players).length < 2) {
       clearInterval(timerInterval);
       roundTime = 90;
       broadcastAll({ type: 'time', time: roundTime });
