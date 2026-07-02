@@ -22,11 +22,68 @@ let players = {};
 let nextId = 1;
 let hp = {};          // { playerId: number }
 let names = {};       // { playerId: string }
+let scores = {};      // { playerId: number }
 let roundOver = false; // blocks hits after someone dies until reset
+
+const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
+
+const MAPS = ['arena', 'docks'];
+let currentMap = 'arena';
+let mapVotes = {};    // { playerId: mapId }
 
 // --- TIMER SYSTEM ---
 let roundTime = 90;
 let timerInterval = null;
+
+function chooseNextMap() {
+  const counts = Object.fromEntries(MAPS.map(map => [map, 0]));
+  for (const vote of Object.values(mapVotes)) {
+    if (counts[vote] !== undefined) counts[vote]++;
+  }
+
+  const topVotes = Math.max(...Object.values(counts));
+  const tiedMaps = MAPS.filter(map => counts[map] === topVotes);
+  currentMap = tiedMaps[Math.floor(Math.random() * tiedMaps.length)];
+  mapVotes = {};
+  broadcastAll({ type: 'mapVotes', votes: mapVotes, selectedMap: currentMap });
+  return currentMap;
+}
+
+function currentSpawnPositions() {
+  return MAP_SPAWNS[currentMap] || MAP_SPAWNS.arena;
+}
+
+function scorePayload() {
+  return Object.fromEntries(Object.keys(players).map(pid => [pid, scores[pid] || 0]));
+}
+
+function awardPoint(playerId) {
+  if (!players[playerId]) return;
+  scores[playerId] = (scores[playerId] || 0) + 1;
+  broadcastAll({ type: 'score', scores: scorePayload(), scorerId: playerId });
+}
+
+function playerListPayload() {
+  return Object.keys(players).map(pid => ({
+    id: pid,
+    name: names[pid] || 'PLAYER',
+    hp: hp[pid] || 0,
+    score: scores[pid] || 0,
+  }));
+}
+
+function sendAdminState(ws) {
+  if (ws.readyState === WebSocket.OPEN) {
+    ws.send(JSON.stringify({ type: 'adminState', players: playerListPayload() }));
+  }
+}
+
+function broadcastAdminState() {
+  for (const ws of Object.values(players)) {
+    if (ws.isAdmin) sendAdminState(ws);
+  }
+}
 
 function startTimer() {
   roundTime = 90;
@@ -51,14 +108,19 @@ function startTimer() {
         if (hps[0].hp > hps[1].hp) winnerId = hps[0].pid;
       }
 
+      if (winnerId) awardPoint(winnerId);
+
       broadcastAll({ type: 'timeUp', winnerId });
 
       setTimeout(() => {
         pids.forEach(pid => hp[pid] = 100);
         roundOver = false;
+        const nextMap = chooseNextMap();
+        const spawns = MAP_SPAWNS[nextMap] || MAP_SPAWNS.arena;
         broadcastAll({
           type: 'reset',
-          spawns: Object.fromEntries(pids.map((pid, idx) => [pid, SPAWN_POSITIONS[idx]]))
+          map: nextMap,
+          spawns: Object.fromEntries(pids.map((pid, idx) => [pid, spawns[idx]]))
         });
         startTimer();
       }, 3000);
@@ -66,11 +128,18 @@ function startTimer() {
   }, 1000);
 }
 
-const SPAWN_POSITIONS = [
-  { x: 0, y: 1, z: -17 },
-  { x: 0, y: 1, z: 17 },
-  { x: 0, y: 1, z: 0 },
-];
+const MAP_SPAWNS = {
+  arena: [
+    { x: 0, y: 1, z: -17 },
+    { x: 0, y: 1, z: 17 },
+    { x: 0, y: 1, z: 0 },
+  ],
+  docks: [
+    { x: -16, y: 1, z: -12 },
+    { x: 16, y: 1, z: 12 },
+    { x: 0, y: 1, z: 0 },
+  ],
+};
 
 function broadcast(data, excludeId) {
   const msg = JSON.stringify(data);
@@ -98,22 +167,24 @@ wss.on('connection', (ws) => {
   players[id] = ws;
   hp[id] = 100;
   names[id] = 'PLAYER';
+  scores[id] = scores[id] || 0;
 
-  const spawn = SPAWN_POSITIONS[spawnIdx];
+  const spawnPositions = currentSpawnPositions();
+  const spawn = spawnPositions[spawnIdx];
 
   ws.send(JSON.stringify({
-    type: 'init', id, spawnIdx, spawn,
+    type: 'init', id, spawnIdx, spawn, map: currentMap, mapVotes, scores: scorePayload(),
     players: Object.fromEntries(
       Object.keys(players)
         .filter(pid => pid !== id)
-        .map(pid => [pid, { id: pid, hp: hp[pid] || 100, name: names[pid] || 'PLAYER', pos: SPAWN_POSITIONS[spawnIdx === 0 ? 1 : 0] }])
+        .map((pid, idx) => [pid, { id: pid, hp: hp[pid] || 100, name: names[pid] || 'PLAYER', pos: spawnPositions[idx] || spawnPositions[0] }])
     )
   }));
   
   // Sync current time to new player
   ws.send(JSON.stringify({ type: 'time', time: roundTime }));
 
-  broadcast({ type: 'playerJoined', id, name: names[id], spawn }, id);
+  broadcast({ type: 'playerJoined', id, name: names[id], spawn, map: currentMap }, id);
   console.log(`Player ${id} connected (slot ${spawnIdx}). Total: ${Object.keys(players).length}`);
 
   // Start timer when both players are connected
@@ -130,8 +201,48 @@ wss.on('connection', (ws) => {
         const safeName = String(msg.name || 'PLAYER').slice(0, 16).replace(/[<>]/g, '');
         names[id] = safeName;
         broadcast({ type: 'playerName', id, name: safeName }, id);
+        broadcastAdminState();
         break;
       }
+
+      case 'adminLogin': {
+        const username = String(msg.username || '');
+        const password = String(msg.password || '');
+        if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+          ws.isAdmin = true;
+          ws.send(JSON.stringify({ type: 'adminLogin', ok: true }));
+          sendAdminState(ws);
+        } else {
+          ws.send(JSON.stringify({ type: 'adminLogin', ok: false, error: 'Bad username or password' }));
+        }
+        break;
+      }
+
+      case 'adminKick': {
+        if (!ws.isAdmin) break;
+        const targetId = String(msg.targetId || '');
+        const targetWs = players[targetId];
+        if (!targetWs) break;
+        targetWs.send(JSON.stringify({ type: 'adminKicked', reason: 'Kicked by admin' }));
+        targetWs.close();
+        break;
+      }
+
+      case 'adminCoins': {
+        if (!ws.isAdmin) break;
+        const targetId = String(msg.targetId || '');
+        const targetWs = players[targetId];
+        if (!targetWs) break;
+        const mode = msg.mode === 'set' ? 'set' : 'add';
+        const amount = Math.max(0, Math.min(999999, Math.floor(Number(msg.amount) || 0)));
+        targetWs.send(JSON.stringify({ type: 'adminCoins', mode, amount }));
+        ws.send(JSON.stringify({ type: 'adminNotice', text: `${mode === 'set' ? 'Set' : 'Added'} coins for ${names[targetId] || 'PLAYER'}` }));
+        break;
+      }
+
+      case 'adminRefresh':
+        if (ws.isAdmin) sendAdminState(ws);
+        break;
 
       case 'move':
         broadcast({ type: 'move', id, pos: msg.pos, rot: msg.rot }, id);
@@ -153,6 +264,7 @@ wss.on('connection', (ws) => {
         broadcastAll({ type: 'damage', targetId, hp: hp[targetId], shooterId: id, damage: dmg, isHeadshot: !!msg.isHeadshot, isDirectHit: !!msg.isDirectHit, weapon: msg.weapon || '' });
 
         if (hp[targetId] <= 0) {
+          awardPoint(id);
           // Broadcast kill immediately
           broadcastAll({ type: 'kill', killerId: id, victimId: targetId });
           
@@ -166,9 +278,12 @@ wss.on('connection', (ws) => {
             setTimeout(() => {
               Object.keys(players).forEach(pid => hp[pid] = 100);
               roundOver = false;
+              const nextMap = chooseNextMap();
+              const spawns = MAP_SPAWNS[nextMap] || MAP_SPAWNS.arena;
               broadcastAll({
                 type: 'reset',
-                spawns: Object.fromEntries(Object.keys(players).map((pid, idx) => [pid, SPAWN_POSITIONS[idx]]))
+                map: nextMap,
+                spawns: Object.fromEntries(Object.keys(players).map((pid, idx) => [pid, spawns[idx]]))
               });
               startTimer(); // Restart timer
             }, 3000);
@@ -191,6 +306,14 @@ wss.on('connection', (ws) => {
         broadcastAll({ type: 'chat', id, text });
         break;
       }
+
+      case 'voteMap': {
+        const map = String(msg.map || '');
+        if (!MAPS.includes(map)) break;
+        mapVotes[id] = map;
+        broadcastAll({ type: 'mapVotes', votes: mapVotes, selectedMap: currentMap });
+        break;
+      }
     }
   });
 
@@ -198,7 +321,12 @@ wss.on('connection', (ws) => {
     delete players[id];
     delete hp[id];
     delete names[id];
+    delete scores[id];
+    delete mapVotes[id];
     broadcast({ type: 'playerLeft', id });
+    broadcastAll({ type: 'score', scores: scorePayload() });
+    broadcastAll({ type: 'mapVotes', votes: mapVotes, selectedMap: currentMap });
+    broadcastAdminState();
     console.log(`Player ${id} disconnected. Total: ${Object.keys(players).length}`);
     
     // Stop timer if a player leaves
