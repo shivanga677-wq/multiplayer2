@@ -62,14 +62,34 @@
   }
   #hpValue { color: #fff; font-size: 28px; font-weight: 900; line-height: 1; }
 
-  /* Round Timer */
-  #timerUI {
+  /* Round Info */
+  #roundInfo {
     position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+  }
+  #mapCurrentLabel {
+    color: rgba(255,255,255,0.7); font-size: 11px; letter-spacing: 2px;
+    text-align: center; text-transform: uppercase; font-weight: 900;
+    background: rgba(0,0,0,0.5); padding: 7px 14px; border-radius: 6px;
+    border: 1px solid rgba(0,255,136,0.22);
+    white-space: nowrap;
+  }
+  #timerUI {
     color: #fff; font-size: 24px; font-weight: 900; letter-spacing: 2px;
     background: rgba(0,0,0,0.5); padding: 5px 20px; border-radius: 6px;
     border: 1px solid rgba(255,255,255,0.2);
     text-shadow: 0 0 10px rgba(0,255,136,0.5);
   }
+  #scoreUI {
+    display: flex; align-items: center; gap: 10px;
+    background: rgba(0,0,0,0.55); border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 8px; padding: 6px 14px;
+    color: #fff; font-size: 13px; font-weight: 900; letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  #scoreUI .score-name { color: rgba(255,255,255,0.6); }
+  #scoreUI .score-value { color: #00ff88; font-size: 18px; min-width: 18px; text-align: center; }
+  #scoreUI .score-sep { color: rgba(255,255,255,0.35); }
 
   /* Kill feed */
   #killfeed {
@@ -237,6 +257,36 @@
   .loadout-btn.back { background: rgba(255,255,255,0.08); color: #fff; border: 1px solid rgba(255,255,255,0.2); }
   .loadout-btn.back:hover { background: rgba(255,255,255,0.15); }
 
+  /* ── Map Voting ── */
+  .map-vote-menu {
+    width: 360px; max-width: calc(100vw - 40px);
+    margin: 0 0 24px;
+  }
+  .map-vote-title {
+    color: #888; font-size: 10px; font-weight: 800;
+    letter-spacing: 4px; text-transform: uppercase; text-align: center;
+    margin-bottom: 10px;
+  }
+  .map-vote-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .map-vote-btn {
+    background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.14);
+    color: #fff; border-radius: 7px; padding: 12px 10px;
+    cursor: pointer; pointer-events: all; transition: all 0.15s;
+    text-align: left;
+  }
+  .map-vote-btn:hover { border-color: rgba(0,255,136,0.45); background: rgba(0,255,136,0.08); }
+  .map-vote-btn.active { border-color: #00ff88; box-shadow: 0 0 18px rgba(0,255,136,0.22); }
+  .map-vote-name { display: block; font-size: 13px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; }
+  .map-vote-count { display: block; color: #00ff88; font-size: 11px; font-weight: 900; letter-spacing: 2px; margin-top: 4px; }
+  #mapVotePanel {
+    position: absolute; top: 72px; left: 50%; transform: translateX(-50%);
+    background: rgba(0,0,0,0.55); border: 1px solid rgba(0,255,136,0.22);
+    border-radius: 8px; padding: 10px 12px; width: 310px;
+    display: none; flex-direction: column; gap: 8px;
+    pointer-events: all; z-index: 90;
+  }
+  #mapVotePanel.active { display: flex; }
+
   /* ── Coin earned popup ── */
   #coinPopup {
     position: fixed; top: 70px; left: 50%; transform: translateX(-50%);
@@ -249,7 +299,7 @@
 
   /* ── Coin counter HUD ── */
   #hudCoins {
-    position: absolute; top: 62px; left: 50%; transform: translateX(-50%);
+    position: absolute; top: 150px; left: 50%; transform: translateX(-50%);
     background: rgba(0,0,0,0.45); border: 1px solid rgba(255,200,0,0.3);
     border-radius: 12px; padding: 3px 12px;
     color: #ffd700; font-size: 12px; font-weight: 900; letter-spacing: 1px; pointer-events: none;
@@ -433,19 +483,19 @@
     letter-spacing: 2.5px; text-transform: uppercase; font-weight: 700;
   }
   .settings-sens-row { display: flex; align-items: center; gap: 12px; }
-  #sensSlider {
+  #sensSlider, #adsSensSlider {
     flex: 1; -webkit-appearance: none; appearance: none;
     height: 4px; background: rgba(255,255,255,0.12);
     border-radius: 2px; outline: none; cursor: pointer;
   }
-  #sensSlider::-webkit-slider-thumb {
+  #sensSlider::-webkit-slider-thumb, #adsSensSlider::-webkit-slider-thumb {
     -webkit-appearance: none; width: 16px; height: 16px;
     border-radius: 50%; background: #00ff88;
     box-shadow: 0 0 10px rgba(0,255,136,0.6);
     cursor: pointer; transition: transform 0.15s;
   }
-  #sensSlider::-webkit-slider-thumb:hover { transform: scale(1.3); }
-  #sensValue {
+  #sensSlider::-webkit-slider-thumb:hover, #adsSensSlider::-webkit-slider-thumb:hover { transform: scale(1.3); }
+  #sensValue, #adsSensValue {
     color: #00ff88; font-size: 14px; font-weight: 900;
     min-width: 42px; text-align: right; letter-spacing: 1px;
   }
@@ -525,6 +575,55 @@
   }
   #menuBtn:hover { background: rgba(255,80,80,0.15); border-color: #ff4444; color: #fff; }
   #menuBtn svg { width: 14px; height: 14px; fill: currentColor; flex-shrink: 0; }
+
+  /* ── Admin Panel ── */
+  #adminBtn {
+    position: absolute; top: 16px; right: 430px;
+    background: rgba(0,0,0,0.55);
+    border: 1.5px solid rgba(255,200,0,0.28);
+    border-radius: 8px;
+    padding: 0 14px; height: 38px;
+    display: flex; align-items: center; gap: 7px;
+    cursor: pointer; pointer-events: all;
+    color: rgba(255,220,120,0.9); font-size: 11px;
+    font-weight: 800; letter-spacing: 2px; text-transform: uppercase;
+    transition: background 0.2s, border-color 0.2s, color 0.2s;
+    z-index: 100;
+  }
+  #adminBtn:hover { background: rgba(255,200,0,0.12); border-color: #ffd15a; color: #fff; }
+  #adminPanel {
+    position: absolute; top: 62px; right: 405px;
+    width: 300px; display: none; flex-direction: column; gap: 12px;
+    background: rgba(8,12,18,0.96);
+    border: 1.5px solid rgba(255,200,0,0.3);
+    border-radius: 12px; padding: 16px;
+    pointer-events: all; z-index: 110;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+  }
+  #adminPanel.open { display: flex; }
+  .admin-title { color: #ffd15a; font-size: 12px; font-weight: 900; letter-spacing: 3px; text-transform: uppercase; }
+  .admin-row { display: flex; flex-direction: column; gap: 6px; }
+  .admin-row label { color: rgba(255,255,255,0.45); font-size: 9px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; }
+  .admin-input, .admin-select {
+    background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.14);
+    color: #fff; border-radius: 6px; padding: 8px 10px;
+    outline: none; font-size: 12px; font-weight: 700;
+  }
+  .admin-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .admin-action-btn {
+    border: none; border-radius: 6px; padding: 9px 8px;
+    font-size: 10px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase;
+    cursor: pointer; transition: opacity 0.15s, transform 0.15s;
+  }
+  .admin-action-btn:hover { transform: translateY(-1px); }
+  .admin-action-btn.login, .admin-action-btn.coin { background: #ffd15a; color: #101010; }
+  .admin-action-btn.kick { background: #ff4d4d; color: #fff; }
+  .admin-action-btn.ghost { background: rgba(255,255,255,0.08); color: #fff; border: 1px solid rgba(255,255,255,0.16); }
+  .admin-action-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+  #adminControls { display: none; flex-direction: column; gap: 12px; }
+  #adminControls.active { display: flex; }
+  #adminLoginBox.hidden { display: none; }
+  #adminStatus { color: rgba(255,255,255,0.55); font-size: 11px; line-height: 1.4; min-height: 16px; }
 
   /* ── Damage Numbers ── */
   #dmgContainer {
@@ -636,7 +735,7 @@
   }
   #audioVolRow { display: flex; align-items: center; gap: 8px; }
   #audioVolSlider {
-    flex: 1; -webkit-appearance: none; height: 3px;
+    flex: 1; -webkit-appearance: none; appearance: none; height: 3px;
     background: rgba(255,255,255,0.12); border-radius: 2px; outline: none;
   }
   #audioVolSlider::-webkit-slider-thumb {
@@ -670,7 +769,27 @@
   </div>
 
   <div id="killfeed"></div>
-  <div id="timerUI">1:30</div>
+  <div id="roundInfo">
+    <div id="mapCurrentLabel">CURRENT MAP: ARENA</div>
+    <div id="timerUI">1:30</div>
+    <div id="scoreUI">
+      <span class="score-name">You</span><span class="score-value" id="myScoreVal">0</span>
+      <span class="score-sep">-</span>
+      <span class="score-value" id="enemyScoreVal">0</span><span class="score-name">Enemy</span>
+    </div>
+  </div>
+  <div id="mapVotePanel">
+    <div class="map-vote-options">
+      <button class="map-vote-btn active" type="button" data-map-vote="arena">
+        <span class="map-vote-name">Arena</span>
+        <span class="map-vote-count"><span data-vote-count="arena">1</span> vote</span>
+      </button>
+      <button class="map-vote-btn" type="button" data-map-vote="docks">
+        <span class="map-vote-name">Docks</span>
+        <span class="map-vote-count"><span data-vote-count="docks">0</span> votes</span>
+      </button>
+    </div>
+  </div>
 
   <div id="damageFlash"></div>
   <div id="reloadMsg">RELOADING...</div>
@@ -686,6 +805,39 @@
     <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
     MENU
   </button>
+
+  <button id="adminBtn" title="Admin Panel">ADMIN</button>
+  <div id="adminPanel">
+    <div class="admin-title">Admin Panel</div>
+    <div id="adminLoginBox">
+      <div class="admin-row">
+        <label>Username</label>
+        <input class="admin-input" id="adminUserInput" type="text" autocomplete="off" spellcheck="false" placeholder="admin">
+      </div>
+      <div class="admin-row" style="margin-top:8px;">
+        <label>Password</label>
+        <input class="admin-input" id="adminPassInput" type="password" autocomplete="off" placeholder="password">
+      </div>
+      <button class="admin-action-btn login" id="adminLoginBtn" style="width:100%;margin-top:10px;">Login</button>
+    </div>
+    <div id="adminControls">
+      <div class="admin-row">
+        <label>Target Player</label>
+        <select class="admin-select" id="adminPlayerSelect"></select>
+      </div>
+      <div class="admin-row">
+        <label>Coins</label>
+        <input class="admin-input" id="adminCoinAmount" type="number" min="0" max="999999" value="5">
+      </div>
+      <div class="admin-actions">
+        <button class="admin-action-btn kick" id="adminKickBtn">Kick</button>
+        <button class="admin-action-btn coin" id="adminSetCoinsBtn">Set Coins</button>
+        <button class="admin-action-btn coin" id="adminAddCoinsBtn">Add Coins</button>
+        <button class="admin-action-btn ghost" id="adminRefreshBtn">Refresh</button>
+      </div>
+    </div>
+    <div id="adminStatus">Join the game, then log in.</div>
+  </div>
 
   <button id="settingsBtn" title="Settings">
     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -706,6 +858,14 @@
         <div class="settings-sens-row">
           <input type="range" id="sensSlider" min="10" max="150" value="100" step="1">
           <div id="sensValue">100%</div>
+        </div>
+      </div>
+
+      <div class="settings-row">
+        <div class="settings-label">Scoped Sensitivity</div>
+        <div class="settings-sens-row">
+          <input type="range" id="adsSensSlider" min="20" max="120" value="65" step="1">
+          <div id="adsSensValue">65%</div>
         </div>
       </div>
       <div class="settings-divider"></div>
@@ -811,6 +971,19 @@
     <div class="name-input-wrap">
       <label>Your Name</label>
       <input type="text" id="playerNameInput" maxlength="16" placeholder="PLAYER" spellcheck="false" autocomplete="off">
+    </div>
+    <div class="map-vote-menu">
+      <div class="map-vote-title">Vote Next Map</div>
+      <div class="map-vote-options">
+        <button class="map-vote-btn active" type="button" data-map-vote="arena">
+          <span class="map-vote-name">Arena</span>
+          <span class="map-vote-count"><span data-vote-count="arena">1</span> vote</span>
+        </button>
+        <button class="map-vote-btn" type="button" data-map-vote="docks">
+          <span class="map-vote-name">Docks</span>
+          <span class="map-vote-count"><span data-vote-count="docks">0</span> votes</span>
+        </button>
+      </div>
     </div>
     <div style="display:flex;gap:12px;align-items:center;margin-bottom:20px;">
       <button class="btn" id="shopBtn" style="background:rgba(255,200,0,0.15);color:#ffd700;border:1.5px solid rgba(255,200,0,0.5);padding:14px 32px;">🛒 SHOP</button>
@@ -921,62 +1094,27 @@ const fillLight = new THREE.DirectionalLight(0xadd8ff, 0.4);
 fillLight.position.set(-10, 10, -10);
 scene.add(fillLight);
 
-// ─── MAP STRUCTURES ───────────────────────────────────────────────────────────
-// Reconstructed to match screenshots exactly.
-// Arena is rectangular ~40x36 with tall walls and holes cut in them.
-const structures = [
-  // ── CENTER AREA ──
-  // Center tall tower
-  { x:  0,   z:  0,   w: 3,   h: 6,   d: 3   },
-  // Center platform/low block pair flanking the tower
-  { x: -4,   z:  0,   w: 2,   h: 2,   d: 4   },
-  { x:  4,   z:  0,   w: 2,   h: 2,   d: 4   },
+// ─── MAP SYSTEM ───────────────────────────────────────────────────────────────
+const MAPS = {
+  arena: { name: 'Arena' },
+  docks: { name: 'Docks' },
+};
+let currentMap = 'arena';
+let ARENA_W = 44;
+let ARENA_D = 44;
+let WALL_H = 10;
+let floor = null;
+let wallMat2 = null;
+const mapObjects = [];
+const colliders = [];
 
-  // ── MID-ZONE COVERS (left/right lanes) ──
-  { x: -7,   z: -4,   w: 4,   h: 4,   d: 2   },
-  { x: -7,   z:  4,   w: 4,   h: 4,   d: 2   },
-  { x:  7,   z: -4,   w: 4,   h: 4,   d: 2   },
-  { x:  7,   z:  4,   w: 4,   h: 4,   d: 2   },
-
-  // ── DIAGONAL / ASYMMETRIC COVERS ──
-  { x: -3,   z: -7,   w: 3,   h: 3,   d: 3   },
-  { x:  3,   z:  7,   w: 3,   h: 3,   d: 3   },
-  { x:  3,   z: -6,   w: 2,   h: 5,   d: 2   },
-  { x: -3,   z:  6,   w: 2,   h: 5,   d: 2   },
-
-  // ── L-SHAPE / COMPOUND pieces near center ──
-  // L-arm pieces (visible in screenshots as connected blocks)
-  { x: -9,   z:  1,   w: 2,   h: 3,   d: 5   },
-  { x:  9,   z: -1,   w: 2,   h: 3,   d: 5   },
-  { x: -1,   z:  9,   w: 5,   h: 3,   d: 2   },
-  { x:  1,   z: -9,   w: 5,   h: 3,   d: 2   },
-
-  // ── OUTER FLANK COVERS ──
-  { x: -13,  z: -6,   w: 3,   h: 4,   d: 3   },
-  { x:  13,  z:  6,   w: 3,   h: 4,   d: 3   },
-  { x:  13,  z: -6,   w: 3,   h: 4,   d: 3   },
-  { x: -13,  z:  6,   w: 3,   h: 4,   d: 3   },
-
-  // Low slanted covers near spawn ends
-  { x: -5,   z: -13,  w: 5,   h: 2,   d: 2   },
-  { x:  5,   z:  13,  w: 5,   h: 2,   d: 2   },
-  { x:  5,   z: -13,  w: 5,   h: 2,   d: 2   },
-  { x: -5,   z:  13,  w: 5,   h: 2,   d: 2   },
-
-  // Low stepped platforms near walls
-  { x: -11,  z:  0,   w: 2,   h: 1.5, d: 8   },
-  { x:  11,  z:  0,   w: 2,   h: 1.5, d: 8   },
-];
-
-const colliders = []; 
-
-function makeBlockMaterial() {
+function makeBlockMaterial(fill = '#edf2f7', stroke = 'rgba(150,170,190,0.4)') {
   const c = document.createElement('canvas');
   c.width = 128; c.height = 128;
   const ctx = c.getContext('2d');
-  ctx.fillStyle = '#edf2f7';
+  ctx.fillStyle = fill;
   ctx.fillRect(0, 0, 128, 128);
-  ctx.strokeStyle = 'rgba(150,170,190,0.4)';
+  ctx.strokeStyle = stroke;
   ctx.lineWidth = 1;
   for (let i = 0; i <= 128; i += 32) {
     ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, 128); ctx.stroke();
@@ -988,27 +1126,14 @@ function makeBlockMaterial() {
 }
 
 const blockMat = makeBlockMaterial();
-
-structures.forEach(s => {
-  const geo = new THREE.BoxGeometry(s.w, s.h, s.d);
-  const mesh = new THREE.Mesh(geo, blockMat);
-  mesh.position.set(s.x, s.h / 2, s.z);
-  mesh.castShadow = true;
-  mesh.receiveShadow = true;
-  scene.add(mesh);
-
-  const edges = new THREE.EdgesGeometry(geo);
-  const lineMat = new THREE.LineBasicMaterial({ color: 0x9ab0c4, transparent: true, opacity: 0.5 });
-  const edgeMesh = new THREE.LineSegments(edges, lineMat);
-  edgeMesh.position.copy(mesh.position);
-  scene.add(edgeMesh);
-
-  colliders.push({
-    minX: s.x - s.w / 2, maxX: s.x + s.w / 2,
-    minY: 0, maxY: s.h,
-    minZ: s.z - s.d / 2, maxZ: s.z + s.d / 2
-  });
-});
+const containerMats = {
+  red: makeBlockMaterial('#c9413f', 'rgba(110,20,20,0.45)'),
+  blue: makeBlockMaterial('#2e7fb5', 'rgba(20,60,100,0.45)'),
+  yellow: makeBlockMaterial('#d9b238', 'rgba(120,90,15,0.45)'),
+  purple: makeBlockMaterial('#9c4fd6', 'rgba(90,40,130,0.45)'),
+  green: makeBlockMaterial('#42a86a', 'rgba(20,90,50,0.45)'),
+  white: makeBlockMaterial('#e8eef2', 'rgba(130,150,165,0.45)'),
+};
 
 const floorTex = (() => {
   const c = document.createElement('canvas'); c.width = 256; c.height = 256;
@@ -1034,36 +1159,56 @@ const floorTex = (() => {
   return t;
 })();
 
-// ── RECTANGULAR ARENA FLOOR ───────────────────────────────────────────────────
-// Arena is roughly 44 wide (x) by 44 deep (z) matching the screenshots
-const ARENA_W = 44;  // half = 22
-const ARENA_D = 44;  // half = 22
-const WALL_H = 10;   // tall walls as seen in screenshots
-const wallMat2 = new THREE.MeshLambertMaterial({ color: 0xdce6ee, map: floorTex });
+function trackMapObject(obj) {
+  scene.add(obj);
+  mapObjects.push(obj);
+  return obj;
+}
 
-const floor = new THREE.Mesh(
-  new THREE.PlaneGeometry(ARENA_W + 4, ARENA_D + 4),
-  new THREE.MeshLambertMaterial({ map: floorTex, color: 0xdce6ee })
-);
-floor.rotation.x = -Math.PI / 2;
-floor.receiveShadow = true;
-scene.add(floor);
+function addBox(x, z, w, h, d, material = blockMat, y = h / 2, collider = true, edgeColor = 0x9ab0c4) {
+  const geo = new THREE.BoxGeometry(w, h, d);
+  const mesh = trackMapObject(new THREE.Mesh(geo, material));
+  mesh.position.set(x, y, z);
+  mesh.castShadow = true;
+  mesh.receiveShadow = true;
+
+  const edges = new THREE.EdgesGeometry(geo);
+  const lineMat = new THREE.LineBasicMaterial({ color: edgeColor, transparent: true, opacity: 0.42 });
+  const edgeMesh = trackMapObject(new THREE.LineSegments(edges, lineMat));
+  edgeMesh.position.copy(mesh.position);
+
+  if (collider) {
+    colliders.push({
+      minX: x - w / 2, maxX: x + w / 2,
+      minY: 0, maxY: y + h / 2,
+      minZ: z - d / 2, maxZ: z + d / 2
+    });
+  }
+  return mesh;
+}
+
+function addFloor(color = 0xdce6ee) {
+  floor = trackMapObject(new THREE.Mesh(
+    new THREE.PlaneGeometry(ARENA_W + 4, ARENA_D + 4),
+    new THREE.MeshLambertMaterial({ map: floorTex, color })
+  ));
+  floor.rotation.x = -Math.PI / 2;
+  floor.receiveShadow = true;
+}
 
 // Helper to add a wall segment with optional hole
 function addWallSegment(x, y, z, w, h, d, rotY) {
   const wg = new THREE.BoxGeometry(w, h, d);
-  const wm = new THREE.Mesh(wg, wallMat2);
+  const wm = trackMapObject(new THREE.Mesh(wg, wallMat2));
   wm.position.set(x, y, z);
   if (rotY) wm.rotation.y = rotY;
   wm.castShadow = true; wm.receiveShadow = true;
-  scene.add(wm);
   // Add edge lines
   const edges = new THREE.EdgesGeometry(wg);
   const lineMat = new THREE.LineBasicMaterial({ color: 0x9ab0c4, transparent: true, opacity: 0.35 });
-  const edgeMesh = new THREE.LineSegments(edges, lineMat);
+  const edgeMesh = trackMapObject(new THREE.LineSegments(edges, lineMat));
   edgeMesh.position.copy(wm.position);
   if (rotY) edgeMesh.rotation.y = rotY;
-  scene.add(edgeMesh);
   colliders.push({
     minX: x - w / 2 - 0.1, maxX: x + w / 2 + 0.1,
     minY: 0, maxY: h,
@@ -1071,49 +1216,7 @@ function addWallSegment(x, y, z, w, h, d, rotY) {
   });
 }
 
-// ── NORTH WALL (z = -22) – with hole near center ──────────────────────────
-// Full wall broken into segments leaving a gap (hole) ~4 units wide centered at x=0
-// Wall above the hole (top piece), left piece, right piece
-addWallSegment(-11, WALL_H * 0.75, -22,  20, WALL_H * 0.5, 1.5, 0); // left part
-addWallSegment( 11, WALL_H * 0.75, -22,  20, WALL_H * 0.5, 1.5, 0); // right part
-addWallSegment(  0, WALL_H * 0.75, -22,   6, WALL_H * 0.5, 1.5, 0); // top bridge over hole
-addWallSegment(-11, WALL_H * 0.25, -22,  20, WALL_H * 0.5, 1.5, 0); // left lower
-addWallSegment( 11, WALL_H * 0.25, -22,  20, WALL_H * 0.5, 1.5, 0); // right lower
-// Hole: gap at x=0 bottom half — just no block there
-
-// ── SOUTH WALL (z = +22) – with hole near center ──────────────────────────
-addWallSegment(-11, WALL_H * 0.75,  22,  20, WALL_H * 0.5, 1.5, 0);
-addWallSegment( 11, WALL_H * 0.75,  22,  20, WALL_H * 0.5, 1.5, 0);
-addWallSegment(  0, WALL_H * 0.75,  22,   6, WALL_H * 0.5, 1.5, 0);
-addWallSegment(-11, WALL_H * 0.25,  22,  20, WALL_H * 0.5, 1.5, 0);
-addWallSegment( 11, WALL_H * 0.25,  22,  20, WALL_H * 0.5, 1.5, 0);
-
-// ── EAST WALL (x = +22) – with TWO holes (visible in screenshots) ─────────
-// Holes at z ≈ -8 and z ≈ +8 (lower half gaps)
-// Solid segments: z in [-22,-12], [-4,4], [12,22]; holes at [-12,-4] and [4,12]
-// Upper band solid across full width
-addWallSegment(22, WALL_H * 0.75,   0,  1.5, WALL_H * 0.5, ARENA_D, 0); // full upper
-// Lower: 3 solid + 2 hole gaps
-addWallSegment(22, WALL_H * 0.25, -17,  1.5, WALL_H * 0.5, 10,      0); // lower far north
-addWallSegment(22, WALL_H * 0.25,   0,  1.5, WALL_H * 0.5,  8,      0); // lower center
-addWallSegment(22, WALL_H * 0.25,  17,  1.5, WALL_H * 0.5, 10,      0); // lower far south
-// Holes at z = ±10 (lower half only — no block)
-
-// ── WEST WALL (x = -22) – mirrored
-addWallSegment(-22, WALL_H * 0.75,   0,  1.5, WALL_H * 0.5, ARENA_D, 0);
-addWallSegment(-22, WALL_H * 0.25, -17,  1.5, WALL_H * 0.5, 10,      0);
-addWallSegment(-22, WALL_H * 0.25,   0,  1.5, WALL_H * 0.5,  8,      0);
-addWallSegment(-22, WALL_H * 0.25,  17,  1.5, WALL_H * 0.5, 10,      0);
-
-// ── CORNER PIECES (fill the rectangular corners) ─────────────────────────
-addWallSegment(-22, WALL_H / 2, -22,  1.5, WALL_H, 1.5, 0);
-addWallSegment( 22, WALL_H / 2, -22,  1.5, WALL_H, 1.5, 0);
-addWallSegment(-22, WALL_H / 2,  22,  1.5, WALL_H, 1.5, 0);
-addWallSegment( 22, WALL_H / 2,  22,  1.5, WALL_H, 1.5, 0);
-
-// ── RAMP PLATFORMS near north/south walls (visible in screenshots) ────────
-// Stepped ramp up the inside of the wall at spawn ends
-(function addRampPlatforms() {
+function addRampPlatforms() {
   const rampMat2 = new THREE.MeshLambertMaterial({ color: 0xdde8f0, map: floorTex });
   // North spawn ramps (z = -22 side, x = ±10)
   [[-10, -20], [10, -20], [-10, 20], [10, 20]].forEach(([rx, rz]) => {
@@ -1123,17 +1226,197 @@ addWallSegment( 22, WALL_H / 2,  22,  1.5, WALL_H, 1.5, 0);
       const sd = 1.8;
       const sz = rz + signZ * step * sd;
       const sg = new THREE.BoxGeometry(4, sh, sd);
-      const sm = new THREE.Mesh(sg, rampMat2);
+      const sm = trackMapObject(new THREE.Mesh(sg, rampMat2));
       sm.position.set(rx, sh / 2, sz);
       sm.castShadow = true; sm.receiveShadow = true;
-      scene.add(sm);
       colliders.push({ minX: rx-2, maxX: rx+2, minY: 0, maxY: sh, minZ: sz-sd/2, maxZ: sz+sd/2 });
     }
   });
-})();
+}
 
-// floor collider
-colliders.push({ minX: -ARENA_W/2, maxX: ARENA_W/2, minY: -1, maxY: 0, minZ: -ARENA_D/2, maxZ: ARENA_D/2 });
+function addArenaMap() {
+  ARENA_W = 44; ARENA_D = 44; WALL_H = 10;
+  scene.background = new THREE.Color(0xc8dff0);
+  scene.fog = new THREE.FogExp2(0xc8dff0, 0.008);
+  wallMat2 = new THREE.MeshLambertMaterial({ color: 0xdce6ee, map: floorTex });
+  addFloor(0xdce6ee);
+
+  [
+    { x:  0, z:  0, w: 3, h: 6,   d: 3 },
+    { x: -4, z:  0, w: 2, h: 2,   d: 4 },
+    { x:  4, z:  0, w: 2, h: 2,   d: 4 },
+    { x: -7, z: -4, w: 4, h: 4,   d: 2 },
+    { x: -7, z:  4, w: 4, h: 4,   d: 2 },
+    { x:  7, z: -4, w: 4, h: 4,   d: 2 },
+    { x:  7, z:  4, w: 4, h: 4,   d: 2 },
+    { x: -3, z: -7, w: 3, h: 3,   d: 3 },
+    { x:  3, z:  7, w: 3, h: 3,   d: 3 },
+    { x:  3, z: -6, w: 2, h: 5,   d: 2 },
+    { x: -3, z:  6, w: 2, h: 5,   d: 2 },
+    { x: -9, z:  1, w: 2, h: 3,   d: 5 },
+    { x:  9, z: -1, w: 2, h: 3,   d: 5 },
+    { x: -1, z:  9, w: 5, h: 3,   d: 2 },
+    { x:  1, z: -9, w: 5, h: 3,   d: 2 },
+    { x: -13,z: -6, w: 3, h: 4,   d: 3 },
+    { x:  13,z:  6, w: 3, h: 4,   d: 3 },
+    { x:  13,z: -6, w: 3, h: 4,   d: 3 },
+    { x: -13,z:  6, w: 3, h: 4,   d: 3 },
+    { x: -5, z: -13,w: 5, h: 2,   d: 2 },
+    { x:  5, z:  13,w: 5, h: 2,   d: 2 },
+    { x:  5, z: -13,w: 5, h: 2,   d: 2 },
+    { x: -5, z:  13,w: 5, h: 2,   d: 2 },
+    { x: -11,z:  0, w: 2, h: 1.5, d: 8 },
+    { x:  11,z:  0, w: 2, h: 1.5, d: 8 },
+  ].forEach(s => addBox(s.x, s.z, s.w, s.h, s.d));
+
+  addWallSegment(-11, WALL_H * 0.75, -22,  20, WALL_H * 0.5, 1.5, 0);
+  addWallSegment( 11, WALL_H * 0.75, -22,  20, WALL_H * 0.5, 1.5, 0);
+  addWallSegment(  0, WALL_H * 0.75, -22,   6, WALL_H * 0.5, 1.5, 0);
+  addWallSegment(-11, WALL_H * 0.25, -22,  20, WALL_H * 0.5, 1.5, 0);
+  addWallSegment( 11, WALL_H * 0.25, -22,  20, WALL_H * 0.5, 1.5, 0);
+  addWallSegment(-11, WALL_H * 0.75,  22,  20, WALL_H * 0.5, 1.5, 0);
+  addWallSegment( 11, WALL_H * 0.75,  22,  20, WALL_H * 0.5, 1.5, 0);
+  addWallSegment(  0, WALL_H * 0.75,  22,   6, WALL_H * 0.5, 1.5, 0);
+  addWallSegment(-11, WALL_H * 0.25,  22,  20, WALL_H * 0.5, 1.5, 0);
+  addWallSegment( 11, WALL_H * 0.25,  22,  20, WALL_H * 0.5, 1.5, 0);
+  addWallSegment( 22, WALL_H * 0.75,   0, 1.5, WALL_H * 0.5, ARENA_D, 0);
+  addWallSegment( 22, WALL_H * 0.25, -17, 1.5, WALL_H * 0.5, 10, 0);
+  addWallSegment( 22, WALL_H * 0.25,   0, 1.5, WALL_H * 0.5,  8, 0);
+  addWallSegment( 22, WALL_H * 0.25,  17, 1.5, WALL_H * 0.5, 10, 0);
+  addWallSegment(-22, WALL_H * 0.75,   0, 1.5, WALL_H * 0.5, ARENA_D, 0);
+  addWallSegment(-22, WALL_H * 0.25, -17, 1.5, WALL_H * 0.5, 10, 0);
+  addWallSegment(-22, WALL_H * 0.25,   0, 1.5, WALL_H * 0.5,  8, 0);
+  addWallSegment(-22, WALL_H * 0.25,  17, 1.5, WALL_H * 0.5, 10, 0);
+  addWallSegment(-22, WALL_H / 2, -22, 1.5, WALL_H, 1.5, 0);
+  addWallSegment( 22, WALL_H / 2, -22, 1.5, WALL_H, 1.5, 0);
+  addWallSegment(-22, WALL_H / 2,  22, 1.5, WALL_H, 1.5, 0);
+  addWallSegment( 22, WALL_H / 2,  22, 1.5, WALL_H, 1.5, 0);
+  addRampPlatforms();
+}
+
+function addDocksMap() {
+  ARENA_W = 54; ARENA_D = 54; WALL_H = 7;
+  scene.background = new THREE.Color(0xa9cfe6);
+  scene.fog = new THREE.FogExp2(0xa9cfe6, 0.0055);
+  wallMat2 = new THREE.MeshLambertMaterial({ color: 0x9faab2, map: floorTex });
+  addFloor(0xaeb8c0);
+
+  const concreteMat = makeBlockMaterial('#aeb8c0', 'rgba(80,95,105,0.45)');
+  const warehouseMat = makeBlockMaterial('#d8dde1', 'rgba(80,95,105,0.45)');
+  const blueWallMat = makeBlockMaterial('#90b3ca', 'rgba(55,85,105,0.5)');
+  const yellowWallMat = makeBlockMaterial('#cdb342', 'rgba(105,85,20,0.5)');
+  const pinkWallMat = makeBlockMaterial('#d296a6', 'rgba(115,55,70,0.45)');
+  const roofMat = makeBlockMaterial('#6f7b88', 'rgba(35,45,55,0.55)');
+  const darkRoofMat = makeBlockMaterial('#4f5d69', 'rgba(25,35,45,0.55)');
+  const glassMat = new THREE.MeshLambertMaterial({ color: 0x6db3d6, emissive: 0x18384a, emissiveIntensity: 0.15 });
+  const doorMat = new THREE.MeshLambertMaterial({ color: 0x425261 });
+  const crateMat = new THREE.MeshLambertMaterial({ color: 0xb08a5b });
+  const railMat = new THREE.MeshLambertMaterial({ color: 0x3d4b55 });
+  const ladderMat = new THREE.MeshLambertMaterial({ color: 0xe0bc34 });
+
+  function addDetailBox(x, z, w, h, d, mat, y) {
+    return addBox(x, z, w, h, d, mat, y, false, 0x65727d);
+  }
+
+  function addBuilding(x, z, w, h, d, wallMat, roofColorMat, name, accentMat) {
+    addBox(x, z, w, h, d, wallMat);
+    addDetailBox(x, z, w + 0.8, 0.45, d + 0.8, roofColorMat, h + 0.25);
+    addDetailBox(x, z - d / 2 - 0.08, w * 0.46, 2.1, 0.12, doorMat, 1.1);
+    for (let i = -1; i <= 1; i++) addDetailBox(x + i * w * 0.25, z - d / 2 - 0.1, w * 0.15, 0.55, 0.1, glassMat, h * 0.55);
+    for (let i = -1; i <= 1; i++) addDetailBox(x + i * w * 0.24, z + d / 2 + 0.1, w * 0.14, 0.48, 0.1, glassMat, h * 0.55);
+    addDetailBox(x - w / 2 - 0.1, z, 0.1, 0.48, d * 0.55, glassMat, h * 0.6);
+    addDetailBox(x + w / 2 + 0.1, z, 0.1, 0.48, d * 0.55, glassMat, h * 0.6);
+    addDetailBox(x, z - d / 2 - 0.16, w * 0.56, 0.75, 0.12, accentMat, h + 0.9);
+    const sign = makeTextMaterial(name, '#ffffff', '#26333d');
+    addDetailBox(x, z - d / 2 - 0.22, w * 0.42, 0.65, 0.08, sign, h + 0.9);
+  }
+
+  function makeTextMaterial(text, fg, bg) {
+    const c = document.createElement('canvas'); c.width = 256; c.height = 80;
+    const ctx = c.getContext('2d');
+    ctx.fillStyle = bg; ctx.fillRect(0, 0, c.width, c.height);
+    ctx.strokeStyle = 'rgba(255,255,255,0.55)'; ctx.lineWidth = 6; ctx.strokeRect(6, 6, c.width - 12, c.height - 12);
+    ctx.fillStyle = fg; ctx.font = '900 28px Segoe UI, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(text, c.width / 2, c.height / 2);
+    return new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(c) });
+  }
+
+  const water = trackMapObject(new THREE.Mesh(
+    new THREE.PlaneGeometry(100, 100),
+    new THREE.MeshBasicMaterial({ color: 0x4b9ccb, transparent: true, opacity: 0.72 })
+  ));
+  water.rotation.x = -Math.PI / 2;
+  water.position.set(0, -0.08, 0);
+
+  addDetailBox(0, 0, ARENA_W + 2, 0.28, ARENA_D + 2, concreteMat, 0.03);
+  addWallSegment(0, WALL_H / 2, -27, ARENA_W, WALL_H, 1.2, 0);
+  addWallSegment(-27, WALL_H / 2, 0, 1.2, WALL_H, ARENA_D, 0);
+  addWallSegment(27, WALL_H / 2, 0, 1.2, WALL_H, ARENA_D, 0);
+  addWallSegment(-18, WALL_H / 2, 27, 16, WALL_H, 1.2, 0);
+  addWallSegment(12, WALL_H / 2, 27, 22, WALL_H, 1.2, 0);
+
+  addBuilding(-15, -17, 16, 6.5, 13, blueWallMat, roofMat, 'SHIPYARD', blueWallMat);
+  addBuilding(11, -17, 21, 7.5, 12, warehouseMat, darkRoofMat, 'OLD DOCKS', warehouseMat);
+  addBuilding(-18, 8, 12, 6, 18, yellowWallMat, roofMat, 'SENSEI', yellowWallMat);
+  addBuilding(16, 7, 9, 5.5, 19, pinkWallMat, darkRoofMat, 'BOX CO', pinkWallMat);
+  addBuilding(0, 19, 16, 4.5, 9, warehouseMat, roofMat, 'CARGO', warehouseMat);
+
+  [
+    [-7, -2, 10, 2.2, 2.6, containerMats.red],
+    [-1, 0, 10, 2.2, 2.6, containerMats.yellow],
+    [6, -3, 10, 2.2, 2.6, containerMats.blue],
+    [-10, 15, 8, 2.2, 2.6, containerMats.blue],
+    [8, 14, 9, 2.2, 2.6, containerMats.green],
+    [20, -4, 8, 2.2, 2.6, containerMats.purple],
+    [-22, -4, 8, 2.2, 2.6, containerMats.yellow],
+  ].forEach(([x, z, w, h, d, mat]) => addBox(x, z, w, h, d, mat));
+
+  [
+    [-24, 21, 3, 0.35, 10], [-20, 23, 3, 0.35, 8], [22, 22, 3, 0.35, 9],
+    [-4, 26, 14, 0.35, 4], [18, 26, 10, 0.35, 4],
+  ].forEach(([x, z, w, h, d]) => addBox(x, z, w, h, d, concreteMat, 0.18, true));
+
+  [
+    [-24, 15, 0.35, 1.1, 8], [-24, 26, 0.35, 1.1, 8], [-20, 27, 8, 1.1, 0.35],
+    [22, 17, 0.35, 1.1, 10], [22, 27, 0.35, 1.1, 8], [16, 27, 10, 1.1, 0.35],
+  ].forEach(([x, z, w, h, d]) => addDetailBox(x, z, w, h, d, railMat, 0.75));
+
+  [
+    [-24, -10], [-21, -6], [-13, 2], [-10, 5], [-3, 6], [4, 5], [11, 0], [21, 0],
+    [-21, 18], [-15, 22], [-5, 18], [4, 24], [12, 20], [22, 15],
+  ].forEach(([x, z], idx) => {
+    addBox(x, z, 1.7, 1.3, 1.7, crateMat);
+    if (idx % 2 === 0) addDetailBox(x + 1.2, z - 0.8, 1.1, 0.9, 1.1, crateMat, 0.45);
+  });
+
+  [
+    [-22.7, 1, 0.18, 4, 0.18], [-22.7, 1, 0.18, 0.18, 3.8], [-22.7, 1, 0.18, 0.18, 3.8],
+    [-18, -10, 0.18, 4, 0.18], [-18, -10, 0.18, 0.18, 3.8],
+    [19, -10, 0.18, 4, 0.18], [19, -10, 0.18, 0.18, 3.8],
+  ].forEach(([x, z, w, h, d], idx) => addDetailBox(x + (idx % 3) * 0.45, z, w, h, d, ladderMat, h / 2));
+
+  const craneMat = new THREE.MeshLambertMaterial({ color: 0xd8a12d });
+  const cranePieces = [
+    [23, -15, 0.7, 8, 0.7, 4], [23, -8, 0.7, 8, 0.7, 4],
+    [23, -11.5, 0.8, 0.8, 8, 8], [16, -11.5, 14, 0.55, 0.55, 8.7],
+    [26, -11.5, 0.8, 0.8, 8, 8],
+  ];
+  cranePieces.forEach(([x, z, w, h, d, y]) => addBox(x, z, w, h, d, craneMat, y, false, 0x9b6514));
+}
+
+function buildMap(mapId) {
+  currentMap = MAPS[mapId] ? mapId : 'arena';
+  mapObjects.splice(0).forEach(obj => {
+    if (obj.geometry) obj.geometry.dispose();
+    scene.remove(obj);
+  });
+  colliders.length = 0;
+  if (currentMap === 'docks') addDocksMap();
+  else addArenaMap();
+  colliders.push({ minX: -ARENA_W/2, maxX: ARENA_W/2, minY: -1, maxY: 0, minZ: -ARENA_D/2, maxZ: ARENA_D/2 });
+}
+
+buildMap(currentMap);
 
 // ── SKY ────────────────────────────────────────────────────────────────────
 const sky = new THREE.Mesh(
@@ -1342,6 +1625,7 @@ function writeSaveData() {
       ownedWeapons: player.ownedWeapons,
       name: localPlayerName,
       sensitivity: sensitivityPct,
+      adsSensitivity: adsSensitivityPct,
     }));
   } catch(e) {}
 }
@@ -1359,6 +1643,7 @@ const player = {
 };
 
 const remotePlayers = {}; // { [id]: { id, hp, mesh, pos, rot, connected, dead, smoothPos, vel, lastMoveTime } }
+let roundScores = {};
 
 // ─── INPUT ────────────────────────────────────────────────────────────────────
 const keys = {};
@@ -1390,6 +1675,54 @@ const shopBtn = document.getElementById('shopBtn');
 const playBtn = document.getElementById('playBtn');
 const shopBackBtn = document.getElementById('shopBackBtn');
 const loadoutBackBtn = document.getElementById('loadoutBackBtn');
+let kickedUntilRefresh = false;
+let localMapVote = 'arena';
+let mapVotes = {};
+let adminLoggedIn = false;
+let adminPlayers = [];
+
+function voteCountsFrom(votes) {
+  const counts = Object.fromEntries(Object.keys(MAPS).map(map => [map, 0]));
+  for (const vote of Object.values(votes || {})) {
+    if (counts[vote] !== undefined) counts[vote]++;
+  }
+  if (!player.id && localMapVote && counts[localMapVote] !== undefined) counts[localMapVote]++;
+  return counts;
+}
+
+function updateMapVoteUI(votes = mapVotes, selectedMap = currentMap) {
+  mapVotes = votes || {};
+  const counts = voteCountsFrom(mapVotes);
+  document.querySelectorAll('[data-vote-count]').forEach(el => {
+    const count = counts[el.dataset.voteCount] || 0;
+    el.textContent = count;
+    const label = el.parentElement;
+    if (label) label.lastChild.textContent = count === 1 ? ' vote' : ' votes';
+  });
+  document.querySelectorAll('[data-map-vote]').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.mapVote === localMapVote);
+  });
+  const currentLabel = document.getElementById('mapCurrentLabel');
+  if (currentLabel) currentLabel.textContent = `CURRENT MAP: ${(MAPS[selectedMap]?.name || selectedMap).toUpperCase()}`;
+}
+
+function updateMapVoteVisibility() {
+  const panel = document.getElementById('mapVotePanel');
+  if (!panel) return;
+  panel.classList.toggle('active', isInGameplay() && !player.dead);
+}
+
+document.querySelectorAll('[data-map-vote]').forEach(btn => {
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const map = btn.dataset.mapVote;
+    if (!MAPS[map]) return;
+    localMapVote = map;
+    updateMapVoteUI();
+    sendWS({ type: 'voteMap', map });
+  });
+});
+updateMapVoteUI();
 
 function showOverlay() {
   overlay.style.display = 'flex';
@@ -1438,7 +1771,79 @@ document.getElementById('menuBtn').addEventListener('click', (e) => {
   document.getElementById('statusText').textContent = 'OFFLINE';
 });
 
+const adminBtn = document.getElementById('adminBtn');
+const adminPanel = document.getElementById('adminPanel');
+const adminLoginBox = document.getElementById('adminLoginBox');
+const adminControls = document.getElementById('adminControls');
+const adminStatus = document.getElementById('adminStatus');
+const adminPlayerSelect = document.getElementById('adminPlayerSelect');
+
+function setAdminStatus(text) {
+  adminStatus.textContent = text;
+}
+
+function renderAdminPlayers(players = adminPlayers) {
+  adminPlayers = players || [];
+  const currentValue = adminPlayerSelect.value;
+  adminPlayerSelect.innerHTML = '';
+  for (const p of adminPlayers) {
+    const opt = document.createElement('option');
+    opt.value = p.id;
+    opt.textContent = `${p.name || 'PLAYER'} #${p.id} | HP ${p.hp} | Score ${p.score}`;
+    adminPlayerSelect.appendChild(opt);
+  }
+  if (currentValue && [...adminPlayerSelect.options].some(opt => opt.value === currentValue)) {
+    adminPlayerSelect.value = currentValue;
+  }
+}
+
+function setAdminLoggedIn(loggedIn) {
+  adminLoggedIn = loggedIn;
+  adminLoginBox.classList.toggle('hidden', loggedIn);
+  adminControls.classList.toggle('active', loggedIn);
+  setAdminStatus(loggedIn ? 'Admin ready.' : 'Join the game, then log in.');
+}
+
+adminBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  adminPanel.classList.toggle('open');
+  if (!ws || ws.readyState !== WebSocket.OPEN) setAdminStatus('Join the game before logging in.');
+});
+adminPanel.addEventListener('click', e => e.stopPropagation());
+
+document.getElementById('adminLoginBtn').addEventListener('click', () => {
+  if (!ws || ws.readyState !== WebSocket.OPEN) { setAdminStatus('Join the game first.'); return; }
+  sendWS({
+    type: 'adminLogin',
+    username: document.getElementById('adminUserInput').value.trim(),
+    password: document.getElementById('adminPassInput').value,
+  });
+  setAdminStatus('Checking login...');
+});
+
+document.getElementById('adminKickBtn').addEventListener('click', () => {
+  if (!adminLoggedIn || !adminPlayerSelect.value) return;
+  sendWS({ type: 'adminKick', targetId: adminPlayerSelect.value });
+  setAdminStatus('Kick sent.');
+});
+
+function sendAdminCoins(mode) {
+  if (!adminLoggedIn || !adminPlayerSelect.value) return;
+  const amount = Math.max(0, Math.floor(Number(document.getElementById('adminCoinAmount').value) || 0));
+  sendWS({ type: 'adminCoins', targetId: adminPlayerSelect.value, mode, amount });
+  setAdminStatus(`${mode === 'set' ? 'Set' : 'Add'} coins sent.`);
+}
+
+document.getElementById('adminSetCoinsBtn').addEventListener('click', () => sendAdminCoins('set'));
+document.getElementById('adminAddCoinsBtn').addEventListener('click', () => sendAdminCoins('add'));
+document.getElementById('adminRefreshBtn').addEventListener('click', () => {
+  if (!adminLoggedIn) return;
+  sendWS({ type: 'adminRefresh' });
+  setAdminStatus('Refreshing players...');
+});
+
 document.getElementById('startBtn').addEventListener('click', () => {
+  if (kickedUntilRefresh) return;
   const nameVal = document.getElementById('playerNameInput').value.trim().toUpperCase();
   localPlayerName = nameVal || 'PLAYER';
   writeSaveData();
@@ -1463,6 +1868,7 @@ document.getElementById('startBtn').addEventListener('click', () => {
 document.addEventListener('click', () => {
   if (!pointerLocked && overlay.style.display === 'none'
       && !settingsPanel.classList.contains('open')
+      && !adminPanel.classList.contains('open')
       && !shopScreen.classList.contains('active')
       && !loadoutScreen.classList.contains('active')) {
     canvas.requestPointerLock();
@@ -1572,6 +1978,7 @@ populateLoadout();
 updateAllCoinUI();
 
 let sensitivityPct = (_save && _save.sensitivity) ? _save.sensitivity : 100;
+let adsSensitivityPct = (_save && _save.adsSensitivity) ? _save.adsSensitivity : 65;
 const settingsBtn = document.getElementById('settingsBtn');
 const settingsPanel = document.getElementById('settingsPanel');
 settingsBtn.addEventListener('click', (e) => {
@@ -1591,6 +1998,14 @@ document.getElementById('sensValue').textContent = sensitivityPct + '%';
 sensSlider.addEventListener('input', () => {
   sensitivityPct = parseInt(sensSlider.value);
   document.getElementById('sensValue').textContent = sensitivityPct + '%';
+  writeSaveData();
+});
+const adsSensSlider = document.getElementById('adsSensSlider');
+adsSensSlider.value = adsSensitivityPct;
+document.getElementById('adsSensValue').textContent = adsSensitivityPct + '%';
+adsSensSlider.addEventListener('input', () => {
+  adsSensitivityPct = parseInt(adsSensSlider.value);
+  document.getElementById('adsSensValue').textContent = adsSensitivityPct + '%';
   writeSaveData();
 });
 
@@ -1733,6 +2148,7 @@ function isInGameplay() {
 function updateChatBtnVisibility() {
   if (!chatToggleBtn) return;
   chatToggleBtn.classList.toggle('hidden', !isInGameplay() || chatOpen || player.dead);
+  updateMapVoteVisibility();
 }
 
 function openChat() {
@@ -1782,6 +2198,15 @@ function addChatMessage(name, text, isMe) {
   chatMsgTimers.push(timer);
 }
 
+function updateScoreUI(scores = roundScores) {
+  roundScores = scores || {};
+  const myScore = player.id ? (roundScores[player.id] || 0) : 0;
+  const enemyId = Object.keys(roundScores).find(id => id !== player.id) || Object.keys(remotePlayers)[0];
+  const enemyScore = enemyId ? (roundScores[enemyId] || 0) : 0;
+  document.getElementById('myScoreVal').textContent = myScore;
+  document.getElementById('enemyScoreVal').textContent = enemyScore;
+}
+
 chatInput.addEventListener('keydown', e => {
   e.stopPropagation(); // don't fire game keys
   if (e.code === 'Enter') { sendChat(); }
@@ -1819,12 +2244,14 @@ function connectWS() {
     document.getElementById('statusText').textContent = 'CONNECTED';
     // Send our display name
     sendWS({ type: 'setName', name: localPlayerName });
+    sendWS({ type: 'voteMap', map: localMapVote });
   };
 
   ws.onclose = () => {
     document.getElementById('statusDot').className = '';
-    document.getElementById('statusText').textContent = 'DISCONNECTED';
+    document.getElementById('statusText').textContent = kickedUntilRefresh ? 'KICKED' : 'DISCONNECTED';
     Object.values(remotePlayers).forEach(p => p.connected = false);
+    setAdminLoggedIn(false);
   };
 
   ws.onmessage = (evt) => {
@@ -1849,6 +2276,7 @@ function handleServerMsg(msg) {
     case 'timeUp':
       const iWonTime = msg.winnerId === player.id;
       const tie = msg.winnerId === null;
+      if (msg.scores) updateScoreUI(msg.scores);
       showWinLose(iWonTime, tie);
       if (tie) {
         addKillFeed('⏱ ROUND TIED', false);
@@ -1861,6 +2289,9 @@ function handleServerMsg(msg) {
 
     case 'init':
       player.id = msg.id;
+      if (msg.map) buildMap(msg.map);
+      updateMapVoteUI(msg.mapVotes || {}, msg.map || currentMap);
+      updateScoreUI(msg.scores || {});
       player.pos.set(msg.spawn.x, msg.spawn.y + PLAYER_HEIGHT - 1, msg.spawn.z);
       camera.position.copy(player.pos);
       // Init local player stats
@@ -1883,7 +2314,44 @@ function handleServerMsg(msg) {
       }
       break;
 
+    case 'adminLogin':
+      setAdminLoggedIn(!!msg.ok);
+      if (!msg.ok) setAdminStatus(msg.error || 'Login failed.');
+      break;
+
+    case 'adminState':
+      renderAdminPlayers(msg.players || []);
+      if (adminLoggedIn) setAdminStatus('Player list updated.');
+      break;
+
+    case 'adminNotice':
+      setAdminStatus(msg.text || 'Admin command done.');
+      break;
+
+    case 'adminCoins':
+      if (msg.mode === 'set') player.coins = Math.max(0, Math.floor(Number(msg.amount) || 0));
+      else player.coins += Math.max(0, Math.floor(Number(msg.amount) || 0));
+      updateAllCoinUI();
+      writeSaveData();
+      populateShop();
+      populateLoadout();
+      showCoinPopup(msg.mode === 'set' ? 'SET' : `+${msg.amount}`);
+      break;
+
+    case 'adminKicked':
+      kickedUntilRefresh = true;
+      player.dead = true;
+      if (document.pointerLockElement) document.exitPointerLock();
+      showOverlay();
+      document.getElementById('startBtn').disabled = true;
+      document.getElementById('startBtn').textContent = 'KICKED - REFRESH';
+      document.getElementById('statusDot').className = '';
+      document.getElementById('statusText').textContent = 'KICKED';
+      addKillFeed('KICKED BY ADMIN', false);
+      break;
+
     case 'playerJoined':
+      if (msg.map && msg.map !== currentMap) buildMap(msg.map);
       if (!remotePlayers[msg.id]) {
         remotePlayers[msg.id] = {
           id: msg.id, hp: 100, mesh: null, pos: new THREE.Vector3(),
@@ -1921,6 +2389,8 @@ function handleServerMsg(msg) {
         addKillFeed(`${stats[msg.id] ? stats[msg.id].name : 'PLAYER'} DISCONNECTED`, false);
         delete remotePlayers[msg.id];
       }
+      delete roundScores[msg.id];
+      updateScoreUI();
       break;
 
     case 'move':
@@ -1985,6 +2455,7 @@ function handleServerMsg(msg) {
     case 'kill':
       const iWon = msg.killerId === player.id;
       const victimId = msg.victimId;
+      if (msg.scores) updateScoreUI(msg.scores);
       addKillFeed(iWon ? '🏆 YOU ELIMINATED OPPONENT' : '💀 YOU WERE ELIMINATED', iWon);
       if (iWon && stats[player.id]) { stats[player.id].kills++; updateLeaderboard(); }
       if (!iWon && stats[victimId]) { stats[victimId].kills++; updateLeaderboard(); }
@@ -2005,7 +2476,17 @@ function handleServerMsg(msg) {
       break;
 
     case 'reset':
+      if (msg.map) buildMap(msg.map);
       resetRound(msg.spawns);
+      updateMapVoteUI({}, msg.map || currentMap);
+      break;
+
+    case 'mapVotes':
+      updateMapVoteUI(msg.votes || {}, msg.selectedMap || currentMap);
+      break;
+
+    case 'score':
+      updateScoreUI(msg.scores || {});
       break;
 
     case 'emote':
@@ -2750,7 +3231,8 @@ function gameLoop() {
   if (fpsTimer >= 1) { document.getElementById('fps').textContent = frameCount + ' FPS'; frameCount = 0; fpsTimer = 0; }
 
   if (!player.dead && !emoteActive) {
-    const sensitivity = 0.002 * (sensitivityPct / 100);
+    const scopedMultiplier = 1 + ((adsSensitivityPct / 100) - 1) * adsAlpha;
+    const sensitivity = 0.002 * (sensitivityPct / 100) * scopedMultiplier;
     player.yaw -= mouseDx * sensitivity; player.pitch -= mouseDy * sensitivity;
     player.pitch = Math.max(-Math.PI / 2.2, Math.min(Math.PI / 2.2, player.pitch));
     mouseDx = 0; mouseDy = 0;
